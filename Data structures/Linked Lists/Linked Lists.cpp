@@ -16,8 +16,17 @@ public:
 
 	Node(int val, Node* nex, Node* prev) : value(val), next(nex), previous(prev)
 	{ }
-
+	Node& operator=(const Node& a);
 };
+
+Node& Node::operator=(const Node &a)
+{
+	if(this != &a)
+	{
+		this->value = a.value;
+	}
+	return *this;
+}
 
 Node* insert(Node* previous, int value)
 {
@@ -59,7 +68,8 @@ Node* insertBefore(Node* node, int value)
 	}
 
 	newNode->next = node;
-	newNode->previous = node->previous->previous;
+	newNode->previous = node->previous;
+	node->previous->next = newNode;
 	node->previous = newNode;
 	return newNode;
 }
@@ -81,6 +91,60 @@ Node* insertAfter(Node* node, int value)
 	node->next->previous = newNode;
 
 	return newNode;
+}
+
+void swapNodes(Node* first, Node* second)
+{
+	std::swap(first->value, second->value);
+}
+
+void sortNodesAscending(Node* root, bool includeRoot=false)
+{
+	Node* tmp =  includeRoot == false ? (root->next) : (root);
+	int countNodes = 0;
+	while(tmp->next != NULL)
+	{
+		countNodes++;
+		tmp = tmp->next;
+	}
+
+	for(int i = 0; i < countNodes; i++)
+	{
+		tmp = includeRoot == false ? (root->next) : (root);
+		while(tmp->next != NULL)
+		{
+			if(tmp->value > tmp->next->value)
+			{
+				swapNodes(tmp, tmp->next);
+			}
+			tmp = tmp->next;
+		}
+	}
+}
+
+void sortNodesDescending(Node* root, bool includeRoot = false)
+{
+	Node* tmp = includeRoot==false?(root->next):(root);
+
+	int countNodes = 0;
+	while(tmp->next != NULL)
+	{
+		countNodes++;
+		tmp = tmp->next;
+	}
+
+	for(int i = 0; i < countNodes; i++)
+	{
+		tmp = includeRoot == false ? (root->next) : (root);
+		while(tmp->next != NULL)
+		{
+			if(tmp->value < tmp->next->value)
+			{
+				swapNodes(tmp, tmp->next);
+			}
+			tmp = tmp->next;
+		}
+	}
 }
 
 Node* getRoot(Node* node)
@@ -121,7 +185,6 @@ Node* getLastNode(Node* root)
 	return tmp;
 }
 
-
 void printAllNodes(Node* node)
 {
 	cout << '\n';
@@ -135,20 +198,15 @@ void printAllNodes(Node* node)
 
 	while(tmp->next != NULL)
 	{
-		cout << "value:" << tmp->value << '\n';
+		if(tmp->previous == NULL)
+		{
+			cout << tmp->value << " = the root\n";
+		}
+		else
+		{
+			cout << tmp->value << '\n';
+		}
 		tmp = tmp->next;
 	}
-	cout << "value:" << tmp->value << '\n';
-}
-
-int main()
-{
-	Node* root = new Node(1, NULL, NULL);
-	insertAfter(root, 3);
-	insertBefore(root, 2);
-	insertAfter(root, 1);
-	insertRoot(root, 20);
-	printAllNodes(root);
-	insertRoot(root, 21);
-	printAllNodes(root);
+	cout << tmp->value << " = the end\n";
 }
